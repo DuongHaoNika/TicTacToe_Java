@@ -13,7 +13,6 @@ import java.io.*;
 import java.util.Scanner;
 
 public class GamePanel extends JPanel implements ActionListener {
-
     // logic variables
     boolean playerX;
     boolean gameDone = false;
@@ -24,7 +23,7 @@ public class GamePanel extends JPanel implements ActionListener {
     // paint variables
     int lineWidth = 5;
     int lineLength = 270;
-    int x = 15, y = 100; // location of first line
+    int x = 15, y = 100; // location of 1st line
     int offset = 95; // square width
     int a = 0;
     int b = 5;
@@ -42,16 +41,52 @@ public class GamePanel extends JPanel implements ActionListener {
 
     // CONSTRUCTOR
     public GamePanel() {
-        Dimension size = new Dimension(420, 300);
-        setPreferredSize(size);
-        setMaximumSize(size);
-        setMinimumSize(size);
         addMouseListener(new XOListener());
+        setPreferredSize(new Dimension(420, 300));
         jButton = new JButton("Play Again?");
         jButton.addActionListener(this);
         jButton.setBounds(315, 210, 100, 30);
         add(jButton);
         resetGame();
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Tic Tac Toe");
+        frame.getContentPane();
+        frame.setResizable(false);
+
+
+        GamePanel gamePanel = new GamePanel();
+        frame.add(gamePanel);
+
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowOpened(WindowEvent e) {
+                try {
+                    File file = new File("score.txt");
+                    Scanner sc = new Scanner(file);
+                    gamePanel.setPlayerXWins(Integer.parseInt(sc.nextLine()));
+                    gamePanel.setPlayerOWins(Integer.parseInt(sc.nextLine()));
+                    sc.close();
+                } catch (IOException io) {
+                    // file doesnt exist
+                    File file = new File("score.txt");
+                }
+            }
+
+            public void windowClosing(WindowEvent e) {
+                try {
+                    PrintWriter pw = new PrintWriter("score.txt");
+                    pw.write("");
+                    pw.write(gamePanel.player1wins + "\n");
+                    pw.write(gamePanel.player2wins + "\n");
+                    pw.close();
+                } catch (FileNotFoundException e1) { }
+            }
+        });
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.pack();
+        frame.setVisible(true);
     }
 
     public void resetGame() {
@@ -123,6 +158,11 @@ public class GamePanel extends JPanel implements ActionListener {
                 page.fillOval(332, 160, 50, 50);
                 page.setColor(darkgray);
                 page.fillOval(342, 170, 30, 30);
+
+                page.setColor(offwhite);
+                Font c = new Font("Courier", Font.BOLD + Font.ITALIC, 13);
+                page.setFont(c);
+                page.drawString("HaoDQ", 340, 285);
             } else if (winner == 3) { // tie
                 page.drawString("It's a tie", 330, 178);
             }
@@ -248,43 +288,6 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void setPlayerOWins(int a) {
         player2wins = a;
-    }
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Tic Tac Toe");
-        frame.getContentPane();
-
-        GamePanel gamePanel = new GamePanel();
-        frame.add(gamePanel);
-
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowOpened(WindowEvent e) {
-                try {
-                    File file = new File("score.txt");
-                    Scanner sc = new Scanner(file);
-                    gamePanel.setPlayerXWins(Integer.parseInt(sc.nextLine()));
-                    gamePanel.setPlayerOWins(Integer.parseInt(sc.nextLine()));
-                    sc.close();
-                } catch (IOException io) {
-                    // file doesnt exist
-                    File file = new File("score.txt");
-                }
-            }
-
-            public void windowClosing(WindowEvent e) {
-                try {
-                    PrintWriter pw = new PrintWriter("score.txt");
-                    pw.write("");
-                    pw.write(gamePanel.player1wins + "\n");
-                    pw.write(gamePanel.player2wins + "\n");
-                    pw.close();
-                } catch (FileNotFoundException e1) { }
-            }
-        });
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.pack();
-        frame.setVisible(true);
     }
 
     private class XOListener implements MouseListener {
